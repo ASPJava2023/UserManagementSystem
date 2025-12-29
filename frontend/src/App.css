@@ -1,0 +1,6 @@
+/* Cleaning up App.css to avoid conflicts with Bootstrap */
+#root {
+  width: 100%;
+}
+
+/* Optional: Add some custom overrides if needed later */

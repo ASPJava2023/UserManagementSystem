@@ -1,163 +1,104 @@
-# Spring Boot Backend API - Validation Guide
+# Testing Guide
 
-This guide details how to validate the application using **Postman** or **Swagger UI**.
+This guide details how to validate the User Management System (Backend & Frontend).
 
 ## 🚀 Prerequisites
-1.  **Application Running**: Ensure the app is running on port **8084**.
-    ```bash
-    mvn spring-boot:run
-    ```
-2.  **Base URL**: `http://localhost:8084`
-3.  **Swagger UI**: [http://localhost:8084/swagger-ui/index.html](http://localhost:8084/swagger-ui/index.html)
-4.  **H2 Console**: [http://localhost:8084/h2-console](http://localhost:8084/h2-console)
-    *   **JDBC URL**: `jdbc:h2:mem:testdb`
-    *   **User**: `sa`
-    *   **Password**: `password`
+
+### Backend
+*   **Port**: 8086 (`server.port=8086`)
+*   **Database**: H2 In-Memory (`jdbc:h2:mem:testdb`)
+*   **Credentials**: `sa` / `password`
+*   **Console**: [http://localhost:8086/h2-console](http://localhost:8086/h2-console)
+*   **Swagger UI**: [http://localhost:8086/swagger-ui/index.html](http://localhost:8086/swagger-ui/index.html)
+
+### Frontend
+*   **Port**: 5173 (Default Vite port)
+*   **URL**: [http://localhost:5173](http://localhost:5173)
 
 ---
 
-## 🧪 Step-by-Step Testing Flow
+## 🧪 Postman API Testing Flow
 
-### 1. Verify Master Data (Locations)
-Before registering, we need valid Country, State, and City IDs.
+Use the following sequence to test the backend APIs directly using Postman.
+**Headers**: All requests should generally use `Content-Type: application/json`.
 
-**Endpoints:**
-*   `GET /api/locations/countries`
-*   `GET /api/locations/states/{countryId}`
-*   `GET /api/locations/cities/{stateId}`
+### 1. Master Data (Public)
+Fetch locations for dropdowns.
+*   **GET** `http://localhost:8086/api/locations/countries`
+*   **GET** `http://localhost:8086/api/locations/states/{countryId}`
+*   **GET** `http://localhost:8086/api/locations/cities/{stateId}`
 
-**Test:**
-Fetch all countries to get an ID.
-```http
-GET http://localhost:8084/api/locations/countries
-```
-*Note the `id` of "India" (likely `1`).*
-
----
-
-### 2. User Registration (Sign Up)
-Register a new user to receive a temporary password.
-
-**Endpoint:** `POST /api/auth/signup`
-
-**Payload:**
-```json
-{
-  "name": "John Doe",
-  "email": "john.doe@example.com",
-  "phoneNumber": "9876543210",
-  "countryId": 1,
-  "stateId": 1,
-  "cityId": 1
-}
-```
-
-**Expected Result:**
-*   **Status**: `201 Created`
-*   **Body**: `{"success": true, "message": "User registered successfully...", ...}`
-
-**🔑 CRITICAL STEP (Retrieve Password):**
-Since we are testing locally without a real email server, check the **Application Console Logs**.
-Look for a line like:
-> `INFO ... EmailServiceImpl : Email Body: Hello John Doe... temporary password: <PASSWORD>`
->
-> *Copy this password!*
-
----
-
-### 3. First Login (Temporary Password)
-Attempt to login with the temporary password.
-
-**Endpoint:** `POST /api/auth/login`
-
-**Payload:**
-```json
-{
-  "email": "john.doe@example.com",
-  "password": "<PASTE_PASSWORD_FROM_LOGS>"
-}
-```
-
-**Expected Result:**
-*   **Status**: `200 OK`
+### 2. Signup (Registration)
+Register a new user. The system generates a random password.
+*   **Method**: `POST`
+*   **URL**: `http://localhost:8086/api/auth/signup`
 *   **Body**:
     ```json
     {
-      "success": true,
-      "data": {
-        "isAuthenticated": true,
-        "isFirstLogin": true,
-        "message": "Password reset required"
-      }
+      "name": "Jane Doe",
+      "email": "jane.doe@example.com",
+      "phoneNumber": "9876543210",
+      "countryId": 1,
+      "stateId": 1,
+      "cityId": 1
     }
     ```
+*   **Verification**: Check backend console logs for the "FALLBACK EMAIL LOGGER" to see the generated password.
 
----
+### 3. Login (First Time)
+Login with the temporary password found in the logs.
+*   **Method**: `POST`
+*   **URL**: `http://localhost:8086/api/auth/login`
+*   **Body**:
+    ```json
+    {
+      "email": "jane.doe@example.com",
+      "password": "<PASTE_PASSWORD_FROM_LOGS>"
+    }
+    ```
+*   **Response**: Returns a JWT token and `passwordResetRequired: true`.
 
 ### 4. Reset Password
-Force the user to change their password.
-
-**Endpoint:** `POST /api/auth/reset-password`
-
-**Payload:**
-```json
-{
-  "email": "john.doe@example.com",
-  "oldPassword": "<PASTE_PASSWORD_FROM_LOGS>",
-  "newPassword": "NewSecurePassword123",
-  "confirmPassword": "NewSecurePassword123"
-}
-```
-
-**Expected Result:**
-*   **Status**: `200 OK`
-*   **Body**: `{"success": true, "message": "Password reset successfully...", ...}`
-
----
-
-### 5. Login with New Password
-Login again to access the dashboard.
-
-**Endpoint:** `POST /api/auth/login`
-
-**Payload:**
-```json
-{
-  "email": "john.doe@example.com",
-  "password": "NewSecurePassword123"
-}
-```
-
-**Expected Result:**
-*   **Status**: `200 OK`
+Mandatory password change flow.
+*   **Method**: `POST`
+*   **URL**: `http://localhost:8086/api/auth/reset-password`
 *   **Body**:
     ```json
     {
-      "success": true,
-      "data": {
-        "isFirstLogin": false,
-        "message": "Login Successful"
-      }
+      "email": "jane.doe@example.com",
+      "oldPassword": "<PASTE_PASSWORD_FROM_LOGS>",
+      "newPassword": "MyNewPassword123",
+      "confirmPassword": "MyNewPassword123"
     }
     ```
 
----
-
-### 6. Access Dashboard
-Fetch the dashboard data including the random quote.
-
-**Endpoint:** `GET /api/dashboard?email=john.doe@example.com`
-
-**Expected Result:**
-*   **Status**: `200 OK`
+### 5. Login (Subsequent)
+Login with the new password.
+*   **Method**: `POST`
+*   **URL**: `http://localhost:8086/api/auth/login`
 *   **Body**:
     ```json
     {
-      "success": true,
-      "data": {
-        "userName": "John Doe",
-        "quote": "<Random Quote from API>",
-        "logoutFlag": false
-      }
+      "email": "jane.doe@example.com",
+      "password": "MyNewPassword123"
     }
     ```
+*   **Response**: Returns a new JWT token and `passwordResetRequired: false`.
+
+### 6. Dashboard (Secured)
+Access protected resources.
+*   **Method**: `GET`
+*   **URL**: `http://localhost:8086/api/dashboard`
+*   **Headers**: `Authorization: Bearer <YOUR_JWT_TOKEN>`
+
+---
+
+## 🖥️ Frontend Testing Flow
+
+1.  Open **[http://localhost:5173](http://localhost:5173)**.
+2.  **Signup**: Fill the form. Dropdowns for Country/State/City should work. Submit.
+3.  **Check Logs**: Go to the backend terminal to get the temporary password.
+4.  **Login**: Use email and temporary password.
+5.  **Reset Password**: You should be automatically redirected to the Reset Password screen. Enter details.
+6.  **Login Again**: You will be redirected to Login. Use the new password.
+7.  **Dashboard**: You should see the Welcome message and the "Quote of the Day".

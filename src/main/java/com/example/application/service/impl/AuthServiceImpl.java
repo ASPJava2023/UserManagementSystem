@@ -14,10 +14,14 @@ import com.example.application.repository.CityRepository;
 import com.example.application.repository.CountryRepository;
 import com.example.application.repository.StateRepository;
 import com.example.application.repository.UserRepository;
+import com.example.application.security.JwtUtil;
 import com.example.application.service.AuthService;
 import com.example.application.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +39,9 @@ public class AuthServiceImpl implements AuthService {
     private final CityRepository cityRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
+    private final com.example.application.security.CustomUserDetailsService customUserDetailsService;
 
     @Override
     @Transactional
@@ -63,7 +70,7 @@ public class AuthServiceImpl implements AuthService {
         user.setState(state);
         user.setCity(city);
         user.setPassword(passwordEncoder.encode(rawPassword));
-        user.setFirstLogin(true);
+        user.setPasswordResetRequired(true);
 
         userRepository.save(user);
 
@@ -80,17 +87,20 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public LoginResponse login(LoginRequest request) {
         log.info("Logging in user: {}", request.getEmail());
+
+        // This will authenticate using CustomUserDetailsService and check password
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new AppException("Invalid email or password")); // Generic message for security
+                .orElseThrow(() -> new AppException("Invalid email or password"));
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new AppException("Invalid email or password");
-        }
-
-        if (user.isFirstLogin()) {
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(request.getEmail());
+        String token = jwtUtil.generateToken(userDetails);
+        if (user.isPasswordResetRequired()) {
             return LoginResponse.builder()
                     .isAuthenticated(true)
-                    .isFirstLogin(true)
+                    .passwordResetRequired(true)
                     .message("Password reset required")
                     .userId(user.getId())
                     .name(user.getName())
@@ -100,10 +110,11 @@ public class AuthServiceImpl implements AuthService {
         // Return success
         return LoginResponse.builder()
                 .isAuthenticated(true)
-                .isFirstLogin(false)
+                .passwordResetRequired(false)
                 .message("Login Successful")
                 .userId(user.getId())
                 .name(user.getName())
+                .token(token)
                 .build();
     }
 
@@ -124,7 +135,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        user.setFirstLogin(false);
+        user.setPasswordResetRequired(false);
         userRepository.save(user);
 
         return true;

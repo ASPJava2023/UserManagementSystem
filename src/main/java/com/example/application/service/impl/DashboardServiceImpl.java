@@ -24,21 +24,29 @@ public class DashboardServiceImpl implements DashboardService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        String quote = "Stay positive!";
-        try {
-            QuoteApiResponse apiResponse = quoteClient.getRandomQuote();
-            if (apiResponse != null && apiResponse.getContent() != null) {
-                quote = apiResponse.getContent() + " - " + apiResponse.getAuthor();
-            }
-        } catch (Exception e) {
-            log.error("Quote Service Unavailable: {}", e.getMessage());
-            quote = "Quote service unavailable. Stay positive!";
-        }
+        QuoteApiResponse apiResponse = getQuote();
+        String quoteStr = (apiResponse != null && apiResponse.getContent() != null)
+                ? apiResponse.getContent() + " - " + apiResponse.getAuthor()
+                : "Stay positive!";
 
         return DashboardResponse.builder()
                 .userName(user.getName())
-                .quote(quote)
-                .logoutFlag(false) // Default logic, maybe true if some condition?
+                .quote(quoteStr)
+                .logoutFlag(false)
                 .build();
+    }
+
+    @Override
+    public QuoteApiResponse getQuote() {
+        try {
+            return quoteClient.getRandomQuote();
+        } catch (Exception e) {
+            log.error("Quote Service Unavailable: {}", e.getMessage());
+            QuoteApiResponse fallback = new QuoteApiResponse();
+            fallback.setContent(
+                    "देह शिवा बरु मोहि इहै सुभ करमन ते कबहूँ न टरों। न डरों अरि सो जब जाय लरों, निश्चय करि अपुनि जीत करों। अरु सिख हों आपने ही मन कौ, इह लालच हउ गुन तउ उचरों। जब आव की अवध निदान बनै, अति ही रन मै तब जूझ मरों।");
+            fallback.setAuthor("Guru Gobind Singh");
+            return fallback;
+        }
     }
 }

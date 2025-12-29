@@ -8,9 +8,8 @@ import lombok.Data;
 public class LoginResponse {
     private String message;
     private boolean isAuthenticated;
-    private boolean isFirstLogin;
+    private boolean passwordResetRequired;
     private Long userId;
     private String name;
-    // We can add a token here if we implement a simple token system
-    // private String token;
+    private String token;
 }

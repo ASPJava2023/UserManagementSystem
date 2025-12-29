@@ -40,6 +40,6 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @Column(name = "is_first_login", nullable = false)
-    private boolean isFirstLogin;
+    @Column(name = "password_reset_required", nullable = false)
+    private boolean passwordResetRequired = true;
 }
