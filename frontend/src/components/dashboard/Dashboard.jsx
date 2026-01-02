@@ -20,6 +20,7 @@ const Dashboard = () => {
     const fetchQuote = async () => {
         try {
             const response = await axios.get('/dashboard/quote');
+            console.log("Quote fetched:", response.data);
             setQuote(response.data.data);
         } catch (err) {
             console.error("Failed to fetch quote", err);
@@ -54,6 +55,7 @@ const Dashboard = () => {
                         <div className="card-body">
                             <blockquote className="blockquote mb-0">
                                 <p>{quote ? quote.content : "Loading..."}</p>
+                                <footer className="blockquote-footer">{quote ? quote.quote : ""}</footer>
                                 <footer className="blockquote-footer">{quote ? quote.author : ""}</footer>
                             </blockquote>
                         </div>

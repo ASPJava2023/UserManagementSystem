@@ -4,6 +4,8 @@ com\example\application\service\AuthService.class
 com\example\application\service\MasterDataService.class
 com\example\application\BackendApplication.class
 com\example\application\feign\QuoteClient.class
+com\example\application\security\JwtAuthenticationFilter.class
+com\example\application\security\JwtUtil.class
 com\example\application\config\AppConfig.class
 com\example\application\entity\City.class
 com\example\application\exception\AppException.class
@@ -19,6 +21,7 @@ com\example\application\dto\CityDto.class
 com\example\application\dto\StateDto.class
 com\example\application\dto\response\QuoteApiResponse.class
 com\example\application\dto\response\LoginResponse$LoginResponseBuilder.class
+com\example\application\security\CustomUserDetailsService.class
 com\example\application\entity\Country.class
 com\example\application\exception\ResourceNotFoundException.class
 com\example\application\controller\MasterDataController.class
@@ -34,4 +37,5 @@ com\example\application\service\impl\AuthServiceImpl.class
 com\example\application\service\impl\DashboardServiceImpl.class
 com\example\application\repository\CountryRepository.class
 com\example\application\dto\CountryDto.class
+com\example\application\security\SecurityConfig.class
 com\example\application\dto\request\ResetPasswordRequest.class
