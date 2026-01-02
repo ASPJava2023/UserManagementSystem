@@ -97,6 +97,11 @@ public class AuthServiceImpl implements AuthService {
 
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(request.getEmail());
         String token = jwtUtil.generateToken(userDetails);
+        String role = userDetails.getAuthorities().stream()
+                .findFirst()
+                .map(item -> item.getAuthority())
+                .orElse("ROLE_USER");
+
         if (user.isPasswordResetRequired()) {
             return LoginResponse.builder()
                     .isAuthenticated(true)
@@ -104,6 +109,7 @@ public class AuthServiceImpl implements AuthService {
                     .message("Password reset required")
                     .userId(user.getId())
                     .name(user.getName())
+                    .role(role)
                     .build();
         }
 
@@ -115,6 +121,7 @@ public class AuthServiceImpl implements AuthService {
                 .userId(user.getId())
                 .name(user.getName())
                 .token(token)
+                .role(role)
                 .build();
     }
 

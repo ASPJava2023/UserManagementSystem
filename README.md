@@ -11,6 +11,9 @@ The application mimics real-world enterprise scenarios such as forced password r
 
 ### Backend (Spring Boot)
 *   **Secure Authentication**: Implemented using Spring Security and **JWT (JSON Web Tokens)**.
+*   **Role-Based Access Control (RBAC)**: Distinct access levels for **Admin** and **User**.
+    *   **Admin**: Full CRUD capabilities on users, search/sort/pagination.
+    *   **User**: View dashboard and manage own profile (reset password).
 *   **Dynamic Registration**: Hierarchy-based dropdowns (Country -> State -> City) powered by database master data.
 *   **Password Management**:
     *   System-generated temporary passwords sent via email (simulated in logs).
@@ -48,6 +51,9 @@ The application mimics real-world enterprise scenarios such as forced password r
 4.  The server will start on **port 8086**.
     *   **Swagger API Docs**: [http://localhost:8086/swagger-ui/index.html](http://localhost:8086/swagger-ui/index.html)
     *   **H2 Console**: [http://localhost:8086/h2-console](http://localhost:8086/h2-console)
+    *   **Admin Credentials**:
+        *   Email: `admin@example.com`
+        *   Password: `password`
 
 ### 2. Frontend Setup
 1.  Navigate to the `frontend` folder:

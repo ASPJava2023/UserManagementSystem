@@ -42,4 +42,8 @@ public class User {
 
     @Column(name = "password_reset_required", nullable = false)
     private boolean passwordResetRequired = true;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role = Role.USER;
 }

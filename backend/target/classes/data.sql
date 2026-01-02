@@ -18,3 +18,5 @@ INSERT INTO cities (name, state_id) VALUES ('Los Angeles', 4);
 INSERT INTO cities (name, state_id) VALUES ('San Francisco', 4);
 INSERT INTO cities (name, state_id) VALUES ('Austin', 5);
 INSERT INTO cities (name, state_id) VALUES ('Dallas', 5);
+
+

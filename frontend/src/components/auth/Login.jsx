@@ -16,16 +16,18 @@ const Login = () => {
         setError('');
         try {
             const response = await axios.post('/auth/login', form);
-            const { token, passwordResetRequired, userId, name } = response.data.data;
+            const { token, passwordResetRequired, userId, name, role } = response.data.data;
 
             // Store token and user info
             localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify({ userId, name }));
+            localStorage.setItem('user', JSON.stringify({ userId, name, role }));
 
             // Clean up old messages or state if any
 
             if (passwordResetRequired) {
                 navigate('/reset-password', { state: { email: form.email } });
+            } else if (role === 'ROLE_ADMIN') {
+                navigate('/admin/dashboard');
             } else {
                 navigate('/dashboard');
             }
