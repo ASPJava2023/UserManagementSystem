@@ -70,8 +70,15 @@ const Signup = () => {
         e.preventDefault();
         setError('');
         setSuccess('');
+        const payload = {
+            ...form,
+            countryId: Number(form.countryId),
+            stateId: Number(form.stateId),
+            cityId: Number(form.cityId)
+        };
+
         try {
-            const response = await axios.post('/auth/signup', form);
+            const response = await axios.post('/auth/signup', payload);
             setSuccess('Registration successful! Check your email for login credentials.');
             setTimeout(() => navigate('/login'), 3000);
         } catch (err) {
