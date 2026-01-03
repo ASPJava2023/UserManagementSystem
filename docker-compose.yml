@@ -1,21 +1,37 @@
 version: '3.8'
 
 services:
-  project2:
-    image: ankitsinghpawar/project2:latest
+  backend:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
-    container_name: project2
-    ports:
-      - "8088:80"
+    container_name: backend
+    expose:
+      - "8086"
     networks:
-      - project2_app-network
+      - app-network
     restart: always
     environment:
       - SERVER_PORT=8086
-      - SPRING_PROFILES_ACTIVE=prod
+      # Add other environment overrides if necessary
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: /api
+    container_name: frontend
+    ports:
+      - "8088:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+    restart: always
+    environment:
+      - VITE_API_BASE_URL=/api # Included for completeness regarding prompt requirements, mainly used in build args
 
 networks:
-  project2_app-network:
+  app-network:
     driver: bridge
