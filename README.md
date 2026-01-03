@@ -74,30 +74,3 @@ The application mimics real-world enterprise scenarios such as forced password r
 
 ## 🧪 Testing
 For detailed testing instructions (both Manual and Postman), please refer to **[Testing_Guide.md](Testing_Guide.md)**.
-
----
-
-## 🐳 Docker Deployment
-
-You can run the entire stack (Backend + Frontend) using Docker and Docker Compose. This ensures a consistent environment and easy deployment.
-
-### Prerequisites
-*   **Docker Desktop** (or Docker Engine + Docker Compose) installed and running.
-
-### Build and Run
-1.  Navigate to the project root directory.
-2.  Run the following command to build the images and start the containers:
-    ```bash
-    docker-compose up --build
-    ```
-    *   The `--build` flag ensures that any changes to the code are rebuilt into the Docker images.
-
-### Access the Application
-*   **Main Application**: [http://localhost:8088](http://localhost:8088)
-*   **Backend API** (Internal): `http://backend:8086` (Not directly accessible from host, proxied via Frontend)
-*   **Swagger API Docs**: [http://localhost:8088/swagger-ui/index.html](http://localhost:8088/swagger-ui/index.html)
-
-### Common Docker Issues
-*   **Port Conflicts**: Ensure ports `8088` (Frontend) and `8086` (Backend internal) are not occupied on your host.
-*   **Connection Refused**: If the Frontend cannot talk to the Backend, ensure both services are running (`docker-compose ps`) and the Proxy configuration is correct.
-*   **Rebuild**: If you change code, always use `docker-compose up --build` to see changes.
